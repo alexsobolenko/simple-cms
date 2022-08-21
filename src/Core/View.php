@@ -129,17 +129,11 @@ final class View
 
     /**
      * @param string $key
-     * @return string|null
-     * @throws AppException
+     * @return string
      */
-    private function content(string $key): ?string
+    private function content(string $key): string
     {
-        $content = $this->_blocks[$key] ?? null;
-        if (empty($content)) {
-            throw new ViewBuildException('Block "' . $key . '" does not exists');
-        }
-
-        return $content;
+        return $this->_blocks[$key] ?? '';
     }
 
     /**

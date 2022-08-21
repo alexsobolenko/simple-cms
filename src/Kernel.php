@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Exception\AppException;
@@ -15,7 +16,12 @@ final class Kernel
     /**
      * @var Router
      */
-    private Router $router;
+    private static Router $router;
+
+    /**
+     * @var Database
+     */
+    private static Database $database;
 
     /**
      * @var array
@@ -54,6 +60,7 @@ final class Kernel
      * @param array $server
      * @param array $env
      * @param array $session
+     * @throws AppException
      */
     public function __construct(array $get, array $post, array $files, array $server, array $env, array $session)
     {
@@ -64,18 +71,21 @@ final class Kernel
         self::$env = $env;
         self::$session = $session;
 
-        $this->router = new Router();
-        $this->router->get('/error', ['Error', 'index']);
+        self::$router = new Router();
+        self::$router->get('/error', ['Error', 'index']);
         $data = self::parseConfig('routes');
         foreach ($data as $name => $params) {
-            $this->router->{$params['method']}(
+            self::$router->{$params['method']}(
                 $params['path'],
                 explode('::', $params['handler'])
             );
         }
+
+        $databaseConfig = self::parseConfig('database');
+        self::$database = Database::getInstance($databaseConfig);
     }
 
-    public static function dd(): void
+    public static function dump(): void
     {
         echo '<pre>';
 
@@ -86,6 +96,14 @@ final class Kernel
 
         echo '</pre>';
         die();
+    }
+
+    /**
+     * @return Database
+     */
+    public static function db(): Database
+    {
+        return self::$database;
     }
 
     /**
@@ -147,7 +165,7 @@ final class Kernel
      */
     private function handleUri(): string
     {
-        return $this->router->resolve(
+        return self::$router->resolve(
             self::$server['REQUEST_URI'],
             self::$server['REQUEST_METHOD']
         );
@@ -162,7 +180,7 @@ final class Kernel
     {
         self::setException($e);
 
-        return $this->router->resolve('/error', 'GET');
+        return self::$router->resolve('/error', 'GET');
     }
 
     /**

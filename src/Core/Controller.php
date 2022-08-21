@@ -21,4 +21,12 @@ abstract class Controller
 
         return strval($view);
     }
+
+    /**
+     * @param string $url
+     */
+    protected function redirect(string $url): void
+    {
+        header('Location: ' . $url);
+    }
 }

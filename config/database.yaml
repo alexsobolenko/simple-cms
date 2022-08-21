@@ -1,4 +1,5 @@
-driver: 'mysql'
 host: '%env(DB_HOST)%'
 port: '%env:int(DB_PORT)%'
-aaa: '%env:array(AAAA)%'
+user: '%env(DB_USER)%'
+pass: '%env(DB_PASSWORD)%'
+dbname: '%env(DB_NAME)%'

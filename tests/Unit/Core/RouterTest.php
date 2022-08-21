@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Unit\Core;
 
 use App\Core\Router;
+use App\Exception\AppException;
 use App\Exception\RouteNotFoundException;
 use PHPUnit\Framework\TestCase;
 
@@ -90,6 +91,7 @@ class RouterTest extends TestCase
         ];
         $this->assertEquals($expected, $this->router->routes());
     }
+
     /**
      * @test
      */
@@ -139,6 +141,7 @@ class RouterTest extends TestCase
      * @param string $method
      * @test
      * @dataProvider \Test\DataProvider\RouterDataProvider::routesNotFoundCases
+     * @throws AppException
      */
     public function it_route_not_found_exception(string $uri, string $method): void
     {
@@ -152,31 +155,5 @@ class RouterTest extends TestCase
         $this->router->post('/users', [$user::class, 'post']);
         $this->expectException(RouteNotFoundException::class);
         $this->router->resolve($uri, $method);
-    }
-
-    /**
-     * @test
-     * @throws RouteNotFoundException
-     */
-    public function it_resolves_route(): void
-    {
-        $user = new class() {
-            public function index(): array {
-                return [1, 2, 3];
-            }
-        };
-
-        $this->router->get('/users', [$user::class, 'index']);
-        $this->assertEquals([1, 2, 3], $this->router->resolve('/users', 'get'));
-    }
-
-    /**
-     * @test
-     * @throws RouteNotFoundException
-     */
-    public function it_resolves_route_from_a_closure(): void
-    {
-        $this->router->get('/users', fn() => [1, 2, 3]);
-        $this->assertEquals([1, 2, 3], $this->router->resolve('/users', 'get'));
     }
 }

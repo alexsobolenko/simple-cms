@@ -97,20 +97,14 @@ final class Router
         $route = explode('?', $uri)[0];
         $action = $this->routes[$method][$route] ?? null;
 
-        if ($action) {
-            if (is_callable($action)) {
-                return call_user_func($action);
-            }
-
-            if (is_array($action)) {
-                [$class, $method] = $action;
-                $controllerClass = "\\App\\Controller\\{$class}Controller";
-                if (class_exists($controllerClass)) {
-                    $controller = new $controllerClass();
-                    $methodAction = "{$method}Action";
-                    if (method_exists($controller, $methodAction)) {
-                        return call_user_func_array([$controller, $methodAction], []);
-                    }
+        if (is_array($action)) {
+            [$class, $method] = $action;
+            $controllerClass = "\\App\\Controller\\{$class}Controller";
+            if (class_exists($controllerClass)) {
+                $controller = new $controllerClass();
+                $methodAction = "{$method}Action";
+                if (method_exists($controller, $methodAction)) {
+                    return call_user_func_array([$controller, $methodAction], []);
                 }
             }
         }

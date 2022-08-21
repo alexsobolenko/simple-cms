@@ -6,6 +6,13 @@ namespace App\Core;
 
 use App\Exception\AppException;
 
+/**
+ * @property-read array $query
+ * @property-read array $request
+ * @property-read array $env
+ * @property-read array $files
+ * @property-read array $session
+ */
 final class Request
 {
     /**
