@@ -1,0 +1,4 @@
+driver: 'mysql'
+host: '%env(DB_HOST)%'
+port: '%env:int(DB_PORT)%'
+aaa: '%env:array(AAAA)%'

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Exception\AppException;
 use App\Exception\ViewBuildException;
 use App\Kernel;
 
@@ -44,7 +45,7 @@ final class View
      * @param string $name
      * @param array $params
      * @return static
-     * @throws ViewBuildException
+     * @throws AppException
      */
     public static function build(string $class, string $name, array $params = []): self
     {
@@ -68,7 +69,7 @@ final class View
      * @param string $name
      * @param array $params
      * @param bool $noLayout
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function __construct(string $class, string $name, array $params = [], bool $noLayout = false)
     {
@@ -84,7 +85,7 @@ final class View
      * @param string $class
      * @param string $name
      * @return string
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function parseViewPath(string $class, string $name): string
     {
@@ -101,7 +102,7 @@ final class View
      * @param string $class
      * @param bool $noLayout
      * @return string|null
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function parseLayoutPath(string $class, bool $noLayout): ?string
     {
@@ -129,7 +130,7 @@ final class View
     /**
      * @param string $key
      * @return string|null
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function content(string $key): ?string
     {
@@ -143,7 +144,7 @@ final class View
 
     /**
      * @param string|null $key
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function start(?string $key = null): void
     {
@@ -156,7 +157,7 @@ final class View
     }
 
     /**
-     * @throws ViewBuildException
+     * @throws AppException
      */
     private function end(): void
     {

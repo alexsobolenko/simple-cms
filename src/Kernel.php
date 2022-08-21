@@ -4,23 +4,76 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Core\Request;
 use App\Core\Router;
-use App\Exception\RouteNotFoundException;
+use App\Exception\AppException;
 
 final class Kernel
 {
+    public const VIEW_PATH = __DIR__ . '/View';
+
     /**
-     * @var Router|null
+     * @var Router
      */
-    private static ?Router $router;
+    private Router $router;
 
     /**
      * @var array
      */
-    private static array $routes = [];
+    private static array $get;
 
-    public const VIEW_PATH = __DIR__ . '/View';
+    /**
+     * @var array
+     */
+    private static array $post;
 
+    /**
+     * @var array
+     */
+    private static array $files;
+
+    /**
+     * @var array
+     */
+    private static array $server;
+
+    /**
+     * @var array
+     */
+    private static array $env;
+
+    /**
+     * @var array
+     */
+    private static array $session;
+
+    /**
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $server
+     * @param array $env
+     * @param array $session
+     */
+    public function __construct(array $get, array $post, array $files, array $server, array $env, array $session)
+    {
+        self::$get = $get;
+        self::$post = $post;
+        self::$files = $files;
+        self::$server = $server;
+        self::$env = $env;
+        self::$session = $session;
+
+        $this->router = new Router();
+        $this->router->get('/error', ['Error', 'index']);
+        $data = self::parseConfig('routes');
+        foreach ($data as $name => $params) {
+            $this->router->{$params['method']}(
+                $params['path'],
+                explode('::', $params['handler'])
+            );
+        }
+    }
 
     public static function dd(): void
     {
@@ -36,21 +89,15 @@ final class Kernel
     }
 
     /**
-     * @param array $routes
      * @return string
+     * @throws AppException
      */
-    public static function run(array $routes): string
+    public function run(): string
     {
-        $routes[] = ['get', '/error', ['Error', 'index']];
-
         try {
-            session_start();
-            self::$routes = $routes;
-            self::$router = new Router();
-            $result = self::handleUri();
+            $result = $this->handleUri();
         } catch (\Throwable $e) {
-            Kernel::setException($e);
-            $result = self::handleException($e);
+            $result = $this->handleException($e);
         }
 
         return $result;
@@ -80,28 +127,74 @@ final class Kernel
     }
 
     /**
-     * @return string
-     * @throws RouteNotFoundException
+     * @return Request
      */
-    private static function handleUri(): string
+    public static function request(): Request
     {
-        foreach (self::$routes as $route) {
-            $method = $route[0];
-            $path = $route[1];
-            $callable = $route[2];
-            self::$router->$method($path, $callable);
-        }
+        return Request::getInstance(
+            self::$get,
+            self::$post,
+            self::$server,
+            self::$files,
+            self::$env,
+            self::$session,
+        );
+    }
 
-        return self::$router->resolve($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+    /**
+     * @return string
+     * @throws AppException
+     */
+    private function handleUri(): string
+    {
+        return $this->router->resolve(
+            self::$server['REQUEST_URI'],
+            self::$server['REQUEST_METHOD']
+        );
     }
 
     /**
      * @param \Throwable $e
      * @return string
-     * @throws RouteNotFoundException
+     * @throws AppException
      */
-    private static function handleException(\Throwable $e)
+    private function handleException(\Throwable $e)
     {
-        return self::$router->resolve('/error', 'GET');
+        self::setException($e);
+
+        return $this->router->resolve('/error', 'GET');
+    }
+
+    /**
+     * @param string $path
+     * @return array
+     * @throws AppException
+     */
+    private static function parseConfig(string $name): array
+    {
+        try {
+            $result = [];
+            $data = \Spyc::YAMLLoad(__DIR__ . '/../config/' . $name . '.yaml');
+            foreach ($data as $key => $value) {
+                $type = null;
+                if (is_string($value)) {
+                    preg_match_all('/\%env:?(int|bool|array)?\(([A-Z0-9_]+)\)\%/', $value, $matches);
+                    $type = $matches[1][0];
+                    if (!empty($matches[0])) {
+                        $value = self::$env[$matches[2][0]] ?? $matches[2][0];
+                    }
+                }
+                $result[$key] = match ($type) {
+                    'int' => intval($value),
+                    'bool' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+                    'array' => json_decode($value, true),
+                    default => $value,
+                };
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            throw new AppException($e->getMessage(), 400);
+        }
     }
 }

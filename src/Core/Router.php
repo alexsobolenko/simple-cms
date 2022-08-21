@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Exception\AppException;
 use App\Exception\RouteNotFoundException;
 
 final class Router
@@ -87,10 +88,10 @@ final class Router
     /**
      * @param string $uri
      * @param string $method
-     * @return false|mixed
-     * @throws RouteNotFoundException
+     * @return mixed
+     * @throws AppException
      */
-    public function resolve(string $uri, string $method)
+    public function resolve(string $uri, string $method): mixed
     {
         $method = mb_strtoupper($method);
         $route = explode('?', $uri)[0];

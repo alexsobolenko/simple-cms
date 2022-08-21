@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Exception\ViewBuildException;
+use App\Exception\AppException;
 
 abstract class Controller
 {
@@ -12,7 +12,7 @@ abstract class Controller
      * @param string $name
      * @param array $params
      * @return string
-     * @throws ViewBuildException
+     * @throws AppException
      */
     protected function render(string $name, array $params = []): string
     {

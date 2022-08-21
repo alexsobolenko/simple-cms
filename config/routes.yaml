@@ -1,0 +1,4 @@
+home:
+    method: 'get'
+    path: '/'
+    handler: 'Default::index'

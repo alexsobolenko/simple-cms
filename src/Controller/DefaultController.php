@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Exception\ViewBuildException;
+use App\Exception\AppException;
 
 class DefaultController extends Controller
 {
     /**
      * @return string
-     * @throws ViewBuildException
+     * @throws AppException
      */
     public function indexAction(): string
     {

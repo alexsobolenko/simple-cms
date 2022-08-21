@@ -2,6 +2,7 @@
 
 namespace App\Core;
 
+use App\Exception\AppException;
 use App\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
 
@@ -24,7 +25,7 @@ final class Container implements ContainerInterface
     /**
      * @param string $id
      * @return mixed
-     * @throws NotFoundException
+     * @throws AppException
      */
     public function get(string $id)
     {
