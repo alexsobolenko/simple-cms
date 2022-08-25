@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Attribute\Route;
 use App\Exception\AppException;
 use App\Exception\RouteNotFoundException;
+use App\Kernel;
 
 final class Router
 {
@@ -110,5 +112,28 @@ final class Router
         }
 
         throw new RouteNotFoundException('Route not found for: [' . $method . '] ' . $route);
+    }
+
+    /**
+     * @param array $controllers
+     */
+    public function registerControllerRouteAttributes(array $controllers): void
+    {
+        foreach ($controllers as $controller) {
+            try {
+                $reflectionController = new \ReflectionClass($controller);
+                foreach ($reflectionController->getMethods() as $method) {
+                    $attributes = $method->getAttributes(Route::class);
+                    foreach ($attributes as $attribute) {
+                        /** @var Route $route */
+                        $route = $attribute->newInstance();
+                        $controller = str_replace('\\App\\Controller\\', '', $controller);
+                        $controller = str_replace('Controller', '', $controller);
+                        $action = str_replace('Action', '', $method->getName());
+                        $this->register($route->method, $route->path, [$controller, $action]);
+                    }
+                }
+            } catch (\Throwable) {}
+        }
     }
 }

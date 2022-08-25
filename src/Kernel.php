@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Controller\DefaultController;
 use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
@@ -73,16 +74,34 @@ final class Kernel
 
         self::$router = new Router();
         self::$router->get('/error', ['Error', 'index']);
-        $data = self::parseConfig('routes');
-        foreach ($data as $name => $params) {
-            self::$router->{$params['method']}(
-                $params['path'],
-                explode('::', $params['handler'])
-            );
-        }
+
+        self::$router->registerControllerRouteAttributes(
+            $this->getAllControllers(__DIR__ . '/Controller/')
+        );
 
         $databaseConfig = self::parseConfig('database');
         self::$database = Database::getInstance($databaseConfig);
+    }
+
+    /**
+     * @return array
+     */
+    private function getAllControllers(string $path): array
+    {
+        $result = [];
+        foreach (scandir($path) as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            if (is_file($path . $item)) {
+                $result[] = str_replace([__DIR__, '/', '.php'], ['\\App', '\\', ''], $path . $item);
+            } elseif (is_dir($path . $item)) {
+                $result = array_merge($result, $this->getAllControllers($path . $item . '/'));
+            }
+        }
+
+        return $result;
     }
 
     public static function dump(): void

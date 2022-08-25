@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Attribute\Route;
 use App\Core\Controller;
 use App\Exception\AppException;
 use App\Kernel;
@@ -15,6 +16,7 @@ class DefaultController extends Controller
      * @return string
      * @throws AppException
      */
+    #[Route(path: '/', method: 'get')]
     public function indexAction(): string
     {
         $users = User::findAll();
@@ -29,6 +31,7 @@ class DefaultController extends Controller
      * @return string
      * @throws AppException
      */
+    #[Route(path: '/', method: 'post')]
     public function postAction(): string
     {
         $request = Kernel::request();
@@ -51,6 +54,7 @@ class DefaultController extends Controller
      * @return string
      * @throws AppException
      */
+    #[Route(path: '/info', method: 'get')]
     public function infoAction(): string
     {
         $request = Kernel::request();
@@ -65,6 +69,7 @@ class DefaultController extends Controller
     /**
      * @throws AppException
      */
+    #[Route(path: '/delete', method: 'get')]
     public function deleteAction(): void
     {
         $request = Kernel::request();
