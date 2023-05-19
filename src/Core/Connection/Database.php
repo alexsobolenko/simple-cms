@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Connection;
 
-use App\Exception\AppException;
+use App\Core\Http\Response;
+use App\Exception\Core\DatabaseException;
 
+/**
+ * Database connection
+ */
 final class Database
 {
     /**
@@ -20,37 +24,46 @@ final class Database
 
     /**
      * @param array $config
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     private function __construct(array $config)
     {
-        $defaultOptions = [
+        $driver = $config['driver'] ?? 'mysql';
+        $host = $config['host'] ?? null;
+        if ($host === null) {
+            throw new DatabaseException('Host should be specified', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $port = $config['port'] ?? 3306;
+        $dbname = $config['dbname'] ?? null;
+        if ($dbname === null) {
+            throw new DatabaseException('DB name should be specified', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $options = $config['options'] ?? [
             \PDO::ATTR_EMULATE_PREPARES =>false,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
 
         try {
             $this->pdo = new \PDO(
-                sprintf(
-                    '%s:host=%s;port=%s;dbname=%s',
-                    $config['driver'] ?? 'mysql',
-                    $config['host'],
-                    $config['port'] ?? 3306,
-                    $config['dbname']
-                ),
+                "{$driver}:host={$host};port={$port};dbname={$dbname}",
                 $config['user'],
                 $config['pass'],
-                $config['options'] ?? $defaultOptions
+                $options
             );
         } catch (\PDOException $e) {
-            throw new AppException($e->getMessage(), 500);
+            throw new DatabaseException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
+     * Get database instance
+     *
      * @param array $config
+     *
      * @return Database
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     public static function getInstance(array $config): Database
     {
@@ -62,6 +75,8 @@ final class Database
     }
 
     /**
+     * Begin transaction
+     *
      * @return bool
      */
     public function beginTransaction(): bool
@@ -70,6 +85,8 @@ final class Database
     }
 
     /**
+     * Check if in transaction
+     *
      * @return bool
      */
     public function inTransaction(): bool
@@ -78,6 +95,8 @@ final class Database
     }
 
     /**
+     * Commit transaction
+     *
      * @return bool
      */
     public function commit(): bool
@@ -86,6 +105,8 @@ final class Database
     }
 
     /**
+     * Rollback transaction
+     *
      * @return bool
      */
     public function rollBack(): bool
@@ -94,25 +115,34 @@ final class Database
     }
 
     /**
-     * @param string $stmt
-     * @return \PDOStatement
-     */
-    public function query(string $stmt): \PDOStatement
-    {
-        return $this->pdo->query($stmt);
-    }
-
-    /**
-     * @param string $stmt
-     * @return \PDOStatement
-     */
-    public function prepare(string $stmt): \PDOStatement
-    {
-        return $this->pdo->prepare($stmt);
-    }
-
-    /**
+     * Run string query
+     *
      * @param string $query
+     *
+     * @return \PDOStatement
+     */
+    public function query(string $query): \PDOStatement
+    {
+        return $this->pdo->query($query);
+    }
+
+    /**
+     * Prepare string query
+     *
+     * @param string $query
+     *
+     * @return \PDOStatement
+     */
+    public function prepare(string $query): \PDOStatement
+    {
+        return $this->pdo->prepare($query);
+    }
+
+    /**
+     * Exec string query
+     *
+     * @param string $query
+     *
      * @return mixed
      */
     public function exec(string $query)
@@ -121,18 +151,24 @@ final class Database
     }
 
     /**
-     * @return string
+     * Get id of last inserted line
+     *
+     * @return mixed
      */
-    public function lastInsertId(): string
+    public function lastInsertId(): mixed
     {
         return $this->pdo->lastInsertId();
     }
 
     /**
+     * Run query with arguments
+     *
      * @param string $query
      * @param array $args
+     *
      * @return \PDOStatement
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     public function run(string $query, array $args = []): \PDOStatement
     {
@@ -146,15 +182,19 @@ final class Database
 
             return $stmt;
         } catch (\PDOException $e) {
-            throw new AppException($e->getMessage(), 500);
+            throw new DatabaseException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
+     * Fetch one line
+     *
      * @param string $query
      * @param array $args
+     *
      * @return array
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     public function findOne(string $query, array $args = []): array
     {
@@ -162,10 +202,14 @@ final class Database
     }
 
     /**
+     * Fetch all lines
+     *
      * @param string $query
      * @param array $args
+     *
      * @return array
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     public function findAll(string $query, array $args = []): array
     {
@@ -173,9 +217,12 @@ final class Database
     }
 
     /**
+     * Run query
+     *
      * @param string $query
      * @param array $args
-     * @throws AppException
+     *
+     * @throws DatabaseException
      */
     public function sql(string $query, array $args = []): void
     {

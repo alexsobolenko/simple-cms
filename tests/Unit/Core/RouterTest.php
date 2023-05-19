@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Test\Unit\Core;
 
-use App\Core\Router;
-use App\Exception\AppException;
+use App\Core\Router\Router;
+use App\Exception\BaseException;
 use App\Exception\RouteNotFoundException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group core
+ * @group router
+ * @group core.router
+ */
 class RouterTest extends TestCase
 {
     /**
@@ -37,26 +42,41 @@ class RouterTest extends TestCase
     public function it_registers_a_routes(): void
     {
         $this->router = new Router();
-        $this->router->get('/users', ['Users', 'get']);
-        $this->router->post('/users', ['Users', 'post']);
-        $this->router->put('/users', ['Users', 'put']);
-        $this->router->patch('/users', ['Users', 'patch']);
-        $this->router->delete('/users', ['Users', 'delete']);
+        $this->router->get('user.index', '/users', ['Users', 'get']);
+        $this->router->post('user.create', '/users', ['Users', 'post']);
+        $this->router->put('user.edit', '/users', ['Users', 'put']);
+        $this->router->patch('user.modify', '/users', ['Users', 'patch']);
+        $this->router->delete('user.delete', '/users', ['Users', 'delete']);
         $expected = [
-            'GET' => [
-                '/users' => ['Users', 'get'],
+            [
+                'name' => 'user.index',
+                'method' => 'get',
+                'route' => '/users',
+                'action' => ['Users', 'get'],
             ],
-            'POST' => [
-                '/users' => ['Users', 'post'],
+            [
+                'name' => 'user.create',
+                'method' => 'post',
+                'route' => '/users',
+                'action' => ['Users', 'post'],
             ],
-            'PUT' => [
-                '/users' => ['Users', 'put'],
+            [
+                'name' => 'user.edit',
+                'method' => 'put',
+                'route' => '/users',
+                'action' => ['Users', 'put'],
             ],
-            'PATCH' => [
-                '/users' => ['Users', 'patch'],
+            [
+                'name' => 'user.modify',
+                'method' => 'patch',
+                'route' => '/users',
+                'action' => ['Users', 'patch'],
             ],
-            'DELETE' => [
-                '/users' => ['Users', 'delete'],
+            [
+                'name' => 'user.delete',
+                'method' => 'delete',
+                'route' => '/users',
+                'action' => ['Users', 'delete'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -68,10 +88,13 @@ class RouterTest extends TestCase
     public function it_registers_a_get_route(): void
     {
         $this->router = new Router();
-        $this->router->get('/users', ['Users', 'index']);
+        $this->router->get('user.index', '/users', ['Users', 'index']);
         $expected = [
-            'GET' => [
-                '/users' => ['Users', 'index'],
+            [
+                'name' => 'user.index',
+                'method' => 'get',
+                'route' => '/users',
+                'action' => ['Users', 'index'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -83,10 +106,13 @@ class RouterTest extends TestCase
     public function it_registers_a_post_route(): void
     {
         $this->router = new Router();
-        $this->router->post('/users', ['Users', 'index']);
+        $this->router->post('user.index', '/users', ['Users', 'index']);
         $expected = [
-            'POST' => [
-                '/users' => ['Users', 'index'],
+            [
+                'name' => 'user.index',
+                'method' => 'post',
+                'route' => '/users',
+                'action' => ['Users', 'index'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -98,10 +124,13 @@ class RouterTest extends TestCase
     public function it_registers_a_put_route(): void
     {
         $this->router = new Router();
-        $this->router->put('/users', ['Users', 'index']);
+        $this->router->put('user.index', '/users', ['Users', 'index']);
         $expected = [
-            'PUT' => [
-                '/users' => ['Users', 'index'],
+            [
+                'name' => 'user.index',
+                'method' => 'put',
+                'route' => '/users',
+                'action' => ['Users', 'index'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -112,10 +141,13 @@ class RouterTest extends TestCase
     public function it_registers_a_patch_route(): void
     {
         $this->router = new Router();
-        $this->router->patch('/users', ['Users', 'index']);
+        $this->router->patch('user.index', '/users', ['Users', 'index']);
         $expected = [
-            'PATCH' => [
-                '/users' => ['Users', 'index'],
+            [
+                'name' => 'user.index',
+                'method' => 'patch',
+                'route' => '/users',
+                'action' => ['Users', 'index'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -127,10 +159,13 @@ class RouterTest extends TestCase
     public function it_registers_a_delete_route(): void
     {
         $this->router = new Router();
-        $this->router->delete('/users', ['Users', 'index']);
+        $this->router->delete('user.index', '/users', ['Users', 'index']);
         $expected = [
-            'DELETE' => [
-                '/users' => ['Users', 'index'],
+            [
+                'name' => 'user.index',
+                'method' => 'delete',
+                'route' => '/users',
+                'action' => ['Users', 'index'],
             ],
         ];
         $this->assertEquals($expected, $this->router->routes());
@@ -141,7 +176,7 @@ class RouterTest extends TestCase
      * @param string $method
      * @test
      * @dataProvider \Test\DataProvider\RouterDataProvider::routesNotFoundCases
-     * @throws AppException
+     * @throws BaseException
      */
     public function it_route_not_found_exception(string $uri, string $method): void
     {
@@ -151,8 +186,8 @@ class RouterTest extends TestCase
             }
         };
 
-        $this->router->get('/users', [$user::class, 'get']);
-        $this->router->post('/users', [$user::class, 'post']);
+        $this->router->get('user.index', '/users', [$user::class, 'get']);
+        $this->router->post('user.index', '/users', [$user::class, 'post']);
         $this->expectException(RouteNotFoundException::class);
         $this->router->resolve($uri, $method);
     }

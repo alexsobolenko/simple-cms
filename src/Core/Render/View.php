@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Render;
 
-use App\Exception\AppException;
+use App\Exception\BaseException;
 use App\Exception\ViewBuildException;
 use App\Kernel;
 
@@ -44,15 +44,27 @@ final class View
      * @param string $class
      * @param string $name
      * @param array $params
-     * @return static
-     * @throws AppException
+     * @param bool $noLayout
+     *
+     * @throws BaseException
      */
-    public static function build(string $class, string $name, array $params = []): self
-    {
-        return new self($class, $name, $params);
+    private function __construct(
+        string $class,
+        string $name,
+        array $params = [],
+        bool $noLayout = false
+    ) {
+        $this->_view_file = $this->parseViewPath($class, $name);
+        $this->_layout_file = $this->parseLayoutPath($class, $noLayout);
+        $this->_title = $params['title'] ?? 'Document';
+        $this->_buffer = null;
+        $this->_blocks = [];
+        $this->_vp = new ViewParams($params);
     }
 
     /**
+     * Prepare view to string
+     *
      * @return string
      */
     public function __toString(): string
@@ -65,44 +77,47 @@ final class View
     }
 
     /**
+     * Build view
+     *
      * @param string $class
      * @param string $name
      * @param array $params
-     * @param bool $noLayout
-     * @throws AppException
+     *
+     * @return static
+     *
+     * @throws BaseException
      */
-    private function __construct(string $class, string $name, array $params = [], bool $noLayout = false)
+    public static function build(string $class, string $name, array $params = []): self
     {
-        $this->_view_file = $this->parseViewPath($class, $name);
-        $this->_layout_file = $this->parseLayoutPath($class, $noLayout);
-        $this->_title = $params['title'] ?? 'Document';
-        $this->_buffer = null;
-        $this->_blocks = [];
-        $this->_vp = new ViewParams($params);
+        return new self($class, $name, $params);
     }
 
     /**
      * @param string $class
      * @param string $name
      * @return string
-     * @throws AppException
+     * @throws BaseException
      */
     private function parseViewPath(string $class, string $name): string
     {
         $dir = mb_strtolower(str_replace(["App\\Controller\\", 'Controller'], ['', ''], $class));
-        $result = Kernel::VIEW_PATH . '/' . $dir . '/' . $name . '.php';
+        $result = Kernel::VIEW_PATH . "/{$dir}/{$name}.php";
         if (!file_exists($result)) {
-            throw new ViewBuildException('View "' . $dir . '::' . $name . '" not found', 404);
+            throw new ViewBuildException("View '{$dir}::{$name}' not found", 404);
         }
 
         return $result;
     }
 
     /**
+     * Prepare layout path
+     *
      * @param string $class
      * @param bool $noLayout
+     *
      * @return string|null
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     private function parseLayoutPath(string $class, bool $noLayout): ?string
     {
@@ -111,15 +126,17 @@ final class View
         }
 
         $dir = mb_strtolower(str_replace(["App\\Controller\\", 'Controller'], ['', ''], $class));
-        $result = Kernel::VIEW_PATH . '/layout/' . $dir . '.php';
+        $result = Kernel::VIEW_PATH . "/layout/{$dir}.php";
         if (!file_exists($result)) {
-            throw new ViewBuildException('Layout "' . $dir . '" not found', 404);
+            throw new ViewBuildException("Layout '{$dir}' not found", 404);
         }
 
         return $result;
     }
 
     /**
+     * Get title in view
+     *
      * @return string
      */
     private function getTitle(): string
@@ -128,7 +145,10 @@ final class View
     }
 
     /**
+     * Get content by key in view
+     *
      * @param string $key
+     *
      * @return string
      */
     private function content(string $key): string
@@ -137,8 +157,11 @@ final class View
     }
 
     /**
+     * Start view
+     *
      * @param string|null $key
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     private function start(?string $key = null): void
     {
@@ -151,7 +174,9 @@ final class View
     }
 
     /**
-     * @throws AppException
+     * Finish view
+     *
+     * @throws BaseException
      */
     private function end(): void
     {

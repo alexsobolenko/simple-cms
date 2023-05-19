@@ -2,17 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Controller;
 
-use App\Exception\AppException;
+use App\Core\Render\View;
+use App\Exception\BaseException;
 
-abstract class Controller
+/**
+ * Default abstract controller class
+ */
+abstract class AbstractController
 {
     /**
+     * Render view
+     *
      * @param string $name
      * @param array $params
+     *
      * @return string
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     protected function render(string $name, array $params = []): string
     {
@@ -23,10 +31,12 @@ abstract class Controller
     }
 
     /**
+     * Redirect to url
+     *
      * @param string $url
      */
     protected function redirect(string $url): void
     {
-        header('Location: ' . $url);
+        header("Location: {$url}");
     }
 }

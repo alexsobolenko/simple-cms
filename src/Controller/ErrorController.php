@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Exception\AppException;
+use App\Exception\BaseException;
 use App\Kernel;
 
 class ErrorController extends Controller
 {
     /**
      * @return string
-     * @throws AppException
+     * @throws BaseException
      */
     public function indexAction(): string
     {

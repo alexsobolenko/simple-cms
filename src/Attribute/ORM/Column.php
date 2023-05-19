@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Attribute\ORM;
 
-use App\Exception\AppException;
+use App\Exception\BaseException;
 use App\Util\DateTimeUtils;
 
+/**
+ * ORM column attribute
+ */
 #[\Attribute]
 class Column
 {
@@ -22,13 +27,17 @@ class Column
     ) {}
 
     /**
+     * Prepare property value for DB
+     *
      * @param $value
+     *
      * @return mixed
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     public function value($value): mixed
     {
-        return match($this->type) {
+        return match($this) {
             'varchar' => '"' . strval($value) . '"',
             'integer' => intval($value),
             'datetime' => '"' . DateTimeUtils::forDatabase($value) . '"',
@@ -37,18 +46,20 @@ class Column
     }
 
     /**
+     * Prepare propery value
+     *
      * @param array $data
+     *
      * @return mixed
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     public function model(array $data): mixed
     {
-        $value = $data[$this->name];
-
-        return match($this->type) {
-            'integer' => intval($value),
-            'datetime' => DateTimeUtils::fromString($value),
-            default => $value,
+        return match($this) {
+            'integer' => intval($data[$this->name]),
+            'datetime' => DateTimeUtils::fromString($data[$this->name]),
+            default => $data[$this->name],
         };
     }
 }

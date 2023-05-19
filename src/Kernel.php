@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Controller\DefaultController;
-use App\Core\Database;
-use App\Core\Request;
-use App\Core\Router;
-use App\Exception\AppException;
+use App\Core\Connection\Database;
+use App\Core\Http\Request;
+use App\Core\Router\Router;
+use App\Exception\BaseException;
 
+/**
+ * Application kernel
+ */
 final class Kernel
 {
     public const VIEW_PATH = __DIR__ . '/View';
@@ -61,10 +63,17 @@ final class Kernel
      * @param array $server
      * @param array $env
      * @param array $session
-     * @throws AppException
+     *
+     * @throws BaseException
      */
-    public function __construct(array $get, array $post, array $files, array $server, array $env, array $session)
-    {
+    public function __construct(
+        array $get,
+        array $post,
+        array $files,
+        array $server,
+        array $env,
+        array $session
+    ) {
         self::$get = $get;
         self::$post = $post;
         self::$files = $files;
@@ -73,8 +82,7 @@ final class Kernel
         self::$session = $session;
 
         self::$router = new Router();
-        self::$router->get('/error', ['Error', 'index']);
-
+        self::$router->get('kernel.error', '/error', ['Error', 'index']);
         self::$router->registerControllerRouteAttributes(
             $this->getAllControllers(__DIR__ . '/Controller/')
         );
@@ -84,6 +92,8 @@ final class Kernel
     }
 
     /**
+     * Get all controllers on path
+     *
      * @return array
      */
     private function getAllControllers(string $path): array
@@ -104,6 +114,9 @@ final class Kernel
         return $result;
     }
 
+    /**
+     * Dump data for debug
+     */
     public static function dump(): void
     {
         echo '<pre>';
@@ -118,6 +131,8 @@ final class Kernel
     }
 
     /**
+     * Get database connection instance
+     *
      * @return Database
      */
     public static function db(): Database
@@ -126,21 +141,30 @@ final class Kernel
     }
 
     /**
+     * Handle URL or show error
+     *
      * @return string
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     public function run(): string
     {
         try {
-            $result = $this->handleUri();
+            $result = self::$router->resolve(
+                self::$server['REQUEST_URI'],
+                self::$server['REQUEST_METHOD']
+            );
         } catch (\Throwable $e) {
-            $result = $this->handleException($e);
+            self::setException($e);
+            $result = self::$router->resolve('/error', 'GET');
         }
 
         return $result;
     }
 
     /**
+     * Save exception to session
+     *
      * @param \Throwable $e
      */
     public static function setException(\Throwable $e): void
@@ -149,6 +173,8 @@ final class Kernel
     }
 
     /**
+     * Get exception from session
+     *
      * @return \Throwable|null
      */
     public static function getException(): ?\Throwable
@@ -164,6 +190,8 @@ final class Kernel
     }
 
     /**
+     * Get request instance
+     *
      * @return Request
      */
     public static function request(): Request
@@ -179,33 +207,13 @@ final class Kernel
     }
 
     /**
-     * @return string
-     * @throws AppException
-     */
-    private function handleUri(): string
-    {
-        return self::$router->resolve(
-            self::$server['REQUEST_URI'],
-            self::$server['REQUEST_METHOD']
-        );
-    }
-
-    /**
-     * @param \Throwable $e
-     * @return string
-     * @throws AppException
-     */
-    private function handleException(\Throwable $e)
-    {
-        self::setException($e);
-
-        return self::$router->resolve('/error', 'GET');
-    }
-
-    /**
+     * Parse config
+     *
      * @param string $path
+     *
      * @return array
-     * @throws AppException
+     *
+     * @throws BaseException
      */
     private static function parseConfig(string $name): array
     {
@@ -231,7 +239,7 @@ final class Kernel
 
             return $result;
         } catch (\Throwable $e) {
-            throw new AppException($e->getMessage(), 400);
+            throw new BaseException($e->getMessage(), 400);
         }
     }
 }

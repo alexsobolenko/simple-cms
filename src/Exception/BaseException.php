@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Exception;
 
-use Psr\Container\NotFoundExceptionInterface;
+use App\Core\Http\Response;
 
-class NotFoundException extends AppException implements NotFoundExceptionInterface
+class BaseException extends \Exception
 {
     /**
      * @param string $message
      * @param int $code
      * @param \Throwable|null $previous
      */
-    public function __construct(string $message, $code = 404, \Throwable $previous = null)
-    {
+    public function __construct(
+        string $message,
+        $code = Response::HTTP_BAD_REQUEST,
+        \Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 }

@@ -4,32 +4,46 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use App\Attribute\ORM\Column;
-use App\Attribute\ORM\Table;
-use App\Core\Model;
-use App\Exception\AppException;
+use App\Attribute\ORM;
+use App\Core\ORM\Model;
 use App\Util\DateTimeUtils;
 use Ramsey\Uuid\Uuid;
 
-#[Table(name: 'users')]
+#[ORM\Table('users')]
 class User extends Model
 {
-    #[Column(name: 'id', type: 'varchar', length: 30)]
+    #[ORM\Column(name: 'id', type: 'varchar', length: 36)]
     public string $id;
 
-    #[Column(name: 'name', type: 'varchar', length: 200, order: 'asc')]
+    #[ORM\Column(name: 'name', type: 'varchar', length: 200, order: 'ASC')]
     public string $name;
 
-    #[Column(name: 'created_at', type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
     public \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(name: 'updated_at', type: 'datetime')]
+    public \DateTimeImmutable $updatedAt;
+
     /**
-     * @throws AppException
+     * @param string $name
      */
-    public function __construct()
+    public function __construct(string $name)
     {
         $this->id = Uuid::uuid4()->toString();
-        $this->name = '';
-        $this->createdAt = DateTimeUtils::now();
+        $this->name = $name;
+    }
+
+    #[ORM\PreCreate]
+    public function onPreCreate(): void
+    {
+        $now = DateTimeUtils::now();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = DateTimeUtils::now();
     }
 }

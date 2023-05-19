@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Attribute\Route;
-use App\Core\Controller;
-use App\Exception\AppException;
+use App\Core\Controller\AbstractController;
+use App\Exception\BaseException;
 use App\Kernel;
 use App\Model\User;
 
-class DefaultController extends Controller
+class DefaultController extends AbstractController
 {
     /**
      * @return string
-     * @throws AppException
+     * @throws BaseException
      */
-    #[Route(path: '/', method: 'get')]
+    #[Route(name: 'default.index', path: '/', method: 'get')]
     public function indexAction(): string
     {
         $users = User::findAll();
@@ -29,19 +29,20 @@ class DefaultController extends Controller
 
     /**
      * @return string
-     * @throws AppException
+     * @throws BaseException
      */
-    #[Route(path: '/', method: 'post')]
+    #[Route(name: 'default.post', path: '/', method: 'post')]
     public function postAction(): string
     {
         $request = Kernel::request();
+
         $id = $request->query['id'] ?? null;
         if ($id === null) {
-            $user = new User();
+            $user = new User($request->request['name']);
         } else {
             $user = User::findOne($request->query);
+            $user->name = $request->request['name'];
         }
-        $user->name = $request->request['name'];
         $user->save($id !== null);
 
         return $this->render('post', [
@@ -52,9 +53,9 @@ class DefaultController extends Controller
 
     /**
      * @return string
-     * @throws AppException
+     * @throws BaseException
      */
-    #[Route(path: '/info', method: 'get')]
+    #[Route(name: 'default.info', path: '/info', method: 'get')]
     public function infoAction(): string
     {
         $request = Kernel::request();
@@ -67,9 +68,9 @@ class DefaultController extends Controller
     }
 
     /**
-     * @throws AppException
+     * @throws BaseException
      */
-    #[Route(path: '/delete', method: 'get')]
+    #[Route(name: 'default.delete', path: '/delete', method: 'get')]
     public function deleteAction(): void
     {
         $request = Kernel::request();

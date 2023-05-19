@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Render;
 
 final class ViewParams
 {
@@ -32,6 +32,7 @@ final class ViewParams
 
     /**
      * @param string $name
+     *
      * @return mixed|null
      */
     public function __get(string $name)

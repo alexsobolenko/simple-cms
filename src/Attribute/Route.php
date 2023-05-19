@@ -8,11 +8,13 @@ namespace App\Attribute;
 class Route
 {
     /**
+     * @param string $name
      * @param string $path
-     * @param string $method
+     * @param string|string[] $method
      */
     public function __construct(
+        public string $name,
         public string $path,
-        public string $method = 'get'
+        public string|array $method = 'get'
     ) {}
 }

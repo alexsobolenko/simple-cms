@@ -1,20 +1,28 @@
 <?php
 
-namespace App\Core;
+declare(strict_types=1);
 
-use App\Exception\AppException;
-use App\Exception\NotFoundException;
+namespace App\Core\DI;
+
+use App\Core\Http\Response;
+use App\Exception\Core\ContainerException;
 use Psr\Container\ContainerInterface;
 
+/**
+ * DI container
+ */
 final class Container implements ContainerInterface
 {
     /**
-     * @var array
+     * @var mixed[]
      */
     private array $entries = [];
 
     /**
+     * Check for class binding exists
+     *
      * @param string $id
+     *
      * @return bool
      */
     public function has(string $id): bool
@@ -23,14 +31,18 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * Get class binding
+     *
      * @param string $id
+     *
      * @return mixed
-     * @throws AppException
+     *
+     * @throws ContainerException
      */
     public function get(string $id)
     {
         if (!$this->has($id)) {
-            throw new NotFoundException('Class "' . $id . '" has no bindings');
+            throw new ContainerException("Class '{$id}' has no bindings", Response::HTTP_NOT_FOUND);
         }
 
         $entry = $this->entries[$id];
@@ -39,7 +51,10 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * Bind class
+     *
      * @param string $id
+     *
      * @param callable $concrete
      */
     public function set(string $id, callable $concrete): void
