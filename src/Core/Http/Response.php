@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Core\Http;
 
-/**
- * Response object
- */
 class Response
 {
     public const HTTP_CONTINUE = 100;

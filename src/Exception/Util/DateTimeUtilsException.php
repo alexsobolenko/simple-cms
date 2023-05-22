@@ -7,5 +7,4 @@ namespace App\Exception\Util;
 use App\Exception\BaseException;
 
 class DateTimeUtilsException extends BaseException
-{
-}
+{}

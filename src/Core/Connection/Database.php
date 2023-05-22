@@ -7,24 +7,16 @@ namespace App\Core\Connection;
 use App\Core\Http\Response;
 use App\Exception\Core\DatabaseException;
 
-/**
- * Database connection
- */
 final class Database
 {
-    /**
-     * @var Database|null
-     */
+    /** @var Database|null */
     private static ?Database $instance = null;
 
-    /**
-     * @var \PDO
-     */
+    /** @var \PDO */
     private \PDO $pdo;
 
     /**
      * @param array $config
-     *
      * @throws DatabaseException
      */
     private function __construct(array $config)
@@ -52,17 +44,13 @@ final class Database
                 $options
             );
         } catch (\PDOException $e) {
-            throw new DatabaseException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new DatabaseException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
     }
 
     /**
-     * Get database instance
-     *
      * @param array $config
-     *
      * @return Database
-     *
      * @throws DatabaseException
      */
     public static function getInstance(array $config): Database
@@ -75,8 +63,6 @@ final class Database
     }
 
     /**
-     * Begin transaction
-     *
      * @return bool
      */
     public function beginTransaction(): bool
@@ -85,8 +71,6 @@ final class Database
     }
 
     /**
-     * Check if in transaction
-     *
      * @return bool
      */
     public function inTransaction(): bool
@@ -95,8 +79,6 @@ final class Database
     }
 
     /**
-     * Commit transaction
-     *
      * @return bool
      */
     public function commit(): bool
@@ -105,8 +87,6 @@ final class Database
     }
 
     /**
-     * Rollback transaction
-     *
      * @return bool
      */
     public function rollBack(): bool
@@ -115,10 +95,7 @@ final class Database
     }
 
     /**
-     * Run string query
-     *
      * @param string $query
-     *
      * @return \PDOStatement
      */
     public function query(string $query): \PDOStatement
@@ -127,10 +104,7 @@ final class Database
     }
 
     /**
-     * Prepare string query
-     *
      * @param string $query
-     *
      * @return \PDOStatement
      */
     public function prepare(string $query): \PDOStatement
@@ -139,10 +113,7 @@ final class Database
     }
 
     /**
-     * Exec string query
-     *
      * @param string $query
-     *
      * @return mixed
      */
     public function exec(string $query)
@@ -151,8 +122,6 @@ final class Database
     }
 
     /**
-     * Get id of last inserted line
-     *
      * @return mixed
      */
     public function lastInsertId(): mixed
@@ -161,13 +130,9 @@ final class Database
     }
 
     /**
-     * Run query with arguments
-     *
      * @param string $query
      * @param array $args
-     *
      * @return \PDOStatement
-     *
      * @throws DatabaseException
      */
     public function run(string $query, array $args = []): \PDOStatement
@@ -187,13 +152,9 @@ final class Database
     }
 
     /**
-     * Fetch one line
-     *
      * @param string $query
      * @param array $args
-     *
      * @return array
-     *
      * @throws DatabaseException
      */
     public function findOne(string $query, array $args = []): array
@@ -202,13 +163,9 @@ final class Database
     }
 
     /**
-     * Fetch all lines
-     *
      * @param string $query
      * @param array $args
-     *
      * @return array
-     *
      * @throws DatabaseException
      */
     public function findAll(string $query, array $args = []): array
@@ -217,11 +174,8 @@ final class Database
     }
 
     /**
-     * Run query
-     *
      * @param string $query
      * @param array $args
-     *
      * @throws DatabaseException
      */
     public function sql(string $query, array $args = []): void

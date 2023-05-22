@@ -9,23 +9,15 @@ use App\Exception\BaseException;
 use App\Exception\RouteNotFoundException;
 use App\Util\ArrayUtils;
 
-/**
- * Router
- */
 final class Router
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private array $routes = [];
 
     /**
-     * Register route
-     *
      * @param string|string[] $method
      * @param string $route
      * @param callable|array $action
-     *
      * @return $this
      */
     public function register(
@@ -48,12 +40,9 @@ final class Router
     }
 
     /**
-     * Register route. Method GET
-     *
      * @param string $name
      * @param string $route
      * @param callable|array $action
-     *
      * @return self
      */
     public function get(string $name, string $route, callable|array $action): self
@@ -62,12 +51,9 @@ final class Router
     }
 
     /**
-     * Register route. Method POST
-     *
      * @param string $name
      * @param string $route
      * @param callable|array $action
-     *
      * @return self
      */
     public function post(string $name, string $route, callable|array $action): self
@@ -76,12 +62,9 @@ final class Router
     }
 
     /**
-     * Register route. Method PUT
-     *
      * @param string $name
      * @param string $route
      * @param callable|array $action
-     *
      * @return self
      */
     public function put(string $name, string $route, callable|array $action): self
@@ -90,12 +73,9 @@ final class Router
     }
 
     /**
-     * Register route. Method PATCH
-     *
      * @param string $name
      * @param string $route
      * @param callable|array $action
-     *
      * @return self
      */
     public function patch(string $name, string $route, callable|array $action): self
@@ -104,12 +84,9 @@ final class Router
     }
 
     /**
-     * Register route. Method DELETE
-     *
      * @param string $name
      * @param string $route
      * @param callable|array $action
-     *
      * @return self
      */
     public function delete(string $name, string $route, callable|array $action): self
@@ -118,12 +95,9 @@ final class Router
     }
 
     /**
-     * Get registered routes
-     *
      * @param string|null $method
      * @param string|null $route
      * @param string|null $name
-     *
      * @return array
      *
      */
@@ -132,28 +106,19 @@ final class Router
         ?string $route = null,
         ?string $name = null
     ): array {
-        $routes = $this->routes;
-        if ($method !== null) {
-            $routes = ArrayUtils::filter($routes, fn($r): bool => $r['method'] === $method);
-        }
-        if ($route !== null) {
-            $routes = ArrayUtils::filter($routes, fn($r): bool => $r['route'] === $route);
-        }
-        if ($name !== null) {
-            $routes = ArrayUtils::filter($routes, fn($r): bool => $r['name'] === $name);
-        }
+        return ArrayUtils::filter($this->routes, static function ($r) use ($method, $route, $name) {
+            $isMethod = $method === null || mb_strtolower($r['method']) === mb_strtolower($method);
+            $isRoute = $route === null || mb_strtolower($r['route']) === mb_strtolower($route);
+            $isName = $name === null || mb_strtolower($r['name']) === mb_strtolower($name);
 
-        return $routes;
+            return $isMethod && $isRoute && $isName;
+        });
     }
 
     /**
-     * Resolve request URI to route
-     *
      * @param string $uri
      * @param string $method
-     *
      * @return mixed
-     *
      * @throws BaseException
      */
     public function resolve(string $uri, string $method): mixed
@@ -179,8 +144,6 @@ final class Router
     }
 
     /**
-     * Register routes with `Route` attribute on controller methods
-     *
      * @param array $controllers
      */
     public function registerControllerRouteAttributes(array $controllers): void

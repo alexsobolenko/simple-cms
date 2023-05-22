@@ -6,16 +6,9 @@ namespace App\Util;
 
 use App\Exception\Util\DateTimeUtilsException;
 
-/**
- * Utils for date
- * = Default time zone - Europe/Moscow
- * = Use env var `TIME_ZONE` to change time zone
- */
 final class DateTimeUtils
 {
     /**
-     * Get default time zone
-     *
      * @return string
      */
     public static function defaultTimeZone(): string
@@ -24,10 +17,7 @@ final class DateTimeUtils
     }
 
     /**
-     * Get date now
-     *
      * @return \DateTimeImmutable
-     *
      * @throws DateTimeUtilsException
      */
     public static function now(): \DateTimeImmutable
@@ -36,12 +26,8 @@ final class DateTimeUtils
     }
 
     /**
-     * Get date from string
-     *
      * @param string $value
-     *
      * @return \DateTimeImmutable
-     *
      * @throws DateTimeUtilsException
      */
     public static function fromString(string $value): \DateTimeImmutable
@@ -54,12 +40,8 @@ final class DateTimeUtils
     }
 
     /**
-     * Get date from timestamp
-     *
      * @param int $value
-     *
      * @return \DateTimeImmutable
-     *
      * @throws DateTimeUtilsException
      */
     public static function fromTimestamp(int $value): \DateTimeImmutable
@@ -68,8 +50,6 @@ final class DateTimeUtils
     }
 
     /**
-     * Get date from params
-     *
      * @param int $year
      * @param int $month
      * @param int $day
@@ -77,13 +57,11 @@ final class DateTimeUtils
      * @param int $minute
      * @param int $second
      * @param int $microsecond
-     *
      * @return \DateTimeImmutable
-     *
      * @throws DateTimeUtilsException
      */
     public static function fromParams(
-        int $year = 2023,
+        int $year = 1990,
         int $month = 1,
         int $day = 1,
         int $hour = 0,
@@ -99,13 +77,9 @@ final class DateTimeUtils
     }
 
     /**
-     * Format date string
-     *
      * @param string $value
      * @param string $format
-     *
      * @return string
-     *
      * @throws DateTimeUtilsException
      */
     public static function format(string $value, string $format = \DateTimeInterface::ATOM): string
@@ -116,12 +90,8 @@ final class DateTimeUtils
     }
 
     /**
-     * Format date for database (ATOM)
-     *
      * @param mixed $value
-     *
      * @return string|null
-     *
      * @throws DateTimeUtilsException
      */
     public static function forDatabase(mixed $value): ?string

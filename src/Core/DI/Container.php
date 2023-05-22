@@ -8,21 +8,13 @@ use App\Core\Http\Response;
 use App\Exception\Core\ContainerException;
 use Psr\Container\ContainerInterface;
 
-/**
- * DI container
- */
 final class Container implements ContainerInterface
 {
-    /**
-     * @var mixed[]
-     */
+    /** @var mixed[] */
     private array $entries = [];
 
     /**
-     * Check for class binding exists
-     *
      * @param string $id
-     *
      * @return bool
      */
     public function has(string $id): bool
@@ -31,12 +23,8 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * Get class binding
-     *
      * @param string $id
-     *
      * @return mixed
-     *
      * @throws ContainerException
      */
     public function get(string $id)
@@ -51,10 +39,7 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * Bind class
-     *
      * @param string $id
-     *
      * @param callable $concrete
      */
     public function set(string $id, callable $concrete): void

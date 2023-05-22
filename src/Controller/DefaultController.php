@@ -6,16 +6,11 @@ namespace App\Controller;
 
 use App\Attribute\Route;
 use App\Core\Controller\AbstractController;
-use App\Exception\BaseException;
 use App\Kernel;
 use App\Model\User;
 
 class DefaultController extends AbstractController
 {
-    /**
-     * @return string
-     * @throws BaseException
-     */
     #[Route(name: 'default.index', path: '/', method: 'get')]
     public function indexAction(): string
     {
@@ -27,10 +22,6 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    /**
-     * @return string
-     * @throws BaseException
-     */
     #[Route(name: 'default.post', path: '/', method: 'post')]
     public function postAction(): string
     {
@@ -51,10 +42,6 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    /**
-     * @return string
-     * @throws BaseException
-     */
     #[Route(name: 'default.info', path: '/info', method: 'get')]
     public function infoAction(): string
     {
@@ -67,9 +54,6 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    /**
-     * @throws BaseException
-     */
     #[Route(name: 'default.delete', path: '/delete', method: 'get')]
     public function deleteAction(): void
     {

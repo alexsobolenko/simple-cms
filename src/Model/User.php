@@ -7,12 +7,11 @@ namespace App\Model;
 use App\Attribute\ORM;
 use App\Core\ORM\Model;
 use App\Util\DateTimeUtils;
-use Ramsey\Uuid\Uuid;
 
 #[ORM\Table('users')]
 class User extends Model
 {
-    #[ORM\Column(name: 'id', type: 'varchar', length: 36)]
+    #[ORM\Column(name: 'id', type: 'varchar', length: 36, generate: 'uuid')]
     public string $id;
 
     #[ORM\Column(name: 'name', type: 'varchar', length: 200, order: 'ASC')]
@@ -29,7 +28,6 @@ class User extends Model
      */
     public function __construct(string $name)
     {
-        $this->id = Uuid::uuid4()->toString();
         $this->name = $name;
     }
 

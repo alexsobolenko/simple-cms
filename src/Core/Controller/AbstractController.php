@@ -7,19 +7,12 @@ namespace App\Core\Controller;
 use App\Core\Render\View;
 use App\Exception\BaseException;
 
-/**
- * Default abstract controller class
- */
 abstract class AbstractController
 {
     /**
-     * Render view
-     *
      * @param string $name
      * @param array $params
-     *
      * @return string
-     *
      * @throws BaseException
      */
     protected function render(string $name, array $params = []): string
@@ -31,8 +24,6 @@ abstract class AbstractController
     }
 
     /**
-     * Redirect to url
-     *
      * @param string $url
      */
     protected function redirect(string $url): void

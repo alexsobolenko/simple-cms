@@ -15,6 +15,6 @@ class Route
     public function __construct(
         public string $name,
         public string $path,
-        public string|array $method = 'get'
+        public string|array $method = 'GET'
     ) {}
 }

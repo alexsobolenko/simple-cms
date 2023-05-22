@@ -10,34 +10,22 @@ use App\Kernel;
 
 final class View
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $_layout_file;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $_view_file;
 
-    /**
-     * @var string|mixed|null
-     */
+    /** @var string|mixed|null */
     private ?string $_title;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private array $_blocks;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $_buffer;
 
-    /**
-     * @var ViewParams
-     */
+    /** @var ViewParams */
     private ViewParams $_vp;
 
     /**
@@ -45,7 +33,6 @@ final class View
      * @param string $name
      * @param array $params
      * @param bool $noLayout
-     *
      * @throws BaseException
      */
     private function __construct(
@@ -63,8 +50,6 @@ final class View
     }
 
     /**
-     * Prepare view to string
-     *
      * @return string
      */
     public function __toString(): string
@@ -77,14 +62,10 @@ final class View
     }
 
     /**
-     * Build view
-     *
      * @param string $class
      * @param string $name
      * @param array $params
-     *
      * @return static
-     *
      * @throws BaseException
      */
     public static function build(string $class, string $name, array $params = []): self
@@ -110,13 +91,9 @@ final class View
     }
 
     /**
-     * Prepare layout path
-     *
      * @param string $class
      * @param bool $noLayout
-     *
      * @return string|null
-     *
      * @throws BaseException
      */
     private function parseLayoutPath(string $class, bool $noLayout): ?string
@@ -135,8 +112,6 @@ final class View
     }
 
     /**
-     * Get title in view
-     *
      * @return string
      */
     private function getTitle(): string
@@ -145,10 +120,7 @@ final class View
     }
 
     /**
-     * Get content by key in view
-     *
      * @param string $key
-     *
      * @return string
      */
     private function content(string $key): string
@@ -157,10 +129,7 @@ final class View
     }
 
     /**
-     * Start view
-     *
      * @param string|null $key
-     *
      * @throws BaseException
      */
     private function start(?string $key = null): void
@@ -174,8 +143,6 @@ final class View
     }
 
     /**
-     * Finish view
-     *
      * @throws BaseException
      */
     private function end(): void

@@ -9,51 +9,32 @@ use App\Core\Http\Request;
 use App\Core\Router\Router;
 use App\Exception\BaseException;
 
-/**
- * Application kernel
- */
 final class Kernel
 {
     public const VIEW_PATH = __DIR__ . '/View';
 
-    /**
-     * @var Router
-     */
+    /** @var Router */
     private static Router $router;
 
-    /**
-     * @var Database
-     */
+    /** @var Database */
     private static Database $database;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $get;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $post;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $files;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $server;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $env;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static array $session;
 
     /**
@@ -63,7 +44,6 @@ final class Kernel
      * @param array $server
      * @param array $env
      * @param array $session
-     *
      * @throws BaseException
      */
     public function __construct(
@@ -82,7 +62,6 @@ final class Kernel
         self::$session = $session;
 
         self::$router = new Router();
-        self::$router->get('kernel.error', '/error', ['Error', 'index']);
         self::$router->registerControllerRouteAttributes(
             $this->getAllControllers(__DIR__ . '/Controller/')
         );
@@ -92,8 +71,7 @@ final class Kernel
     }
 
     /**
-     * Get all controllers on path
-     *
+     * @param string $path
      * @return array
      */
     private function getAllControllers(string $path): array
@@ -104,35 +82,28 @@ final class Kernel
                 continue;
             }
 
-            if (is_file($path . $item)) {
-                $result[] = str_replace([__DIR__, '/', '.php'], ['\\App', '\\', ''], $path . $item);
-            } elseif (is_dir($path . $item)) {
+            if (is_dir($path . $item)) {
                 $result = array_merge($result, $this->getAllControllers($path . $item . '/'));
+            } elseif (is_file($path . $item)) {
+                $result[] = str_replace([__DIR__, '/', '.php'], ['\\App', '\\', ''], $path . $item);
             }
         }
 
         return $result;
     }
 
-    /**
-     * Dump data for debug
-     */
     public static function dump(): void
     {
         echo '<pre>';
-
         $data = func_get_args();
         foreach ($data as $item) {
             var_dump($item);
         }
-
         echo '</pre>';
         die();
     }
 
     /**
-     * Get database connection instance
-     *
      * @return Database
      */
     public static function db(): Database
@@ -141,10 +112,7 @@ final class Kernel
     }
 
     /**
-     * Handle URL or show error
-     *
      * @return string
-     *
      * @throws BaseException
      */
     public function run(): string
@@ -163,8 +131,6 @@ final class Kernel
     }
 
     /**
-     * Save exception to session
-     *
      * @param \Throwable $e
      */
     public static function setException(\Throwable $e): void
@@ -173,8 +139,6 @@ final class Kernel
     }
 
     /**
-     * Get exception from session
-     *
      * @return \Throwable|null
      */
     public static function getException(): ?\Throwable
@@ -190,8 +154,6 @@ final class Kernel
     }
 
     /**
-     * Get request instance
-     *
      * @return Request
      */
     public static function request(): Request
@@ -207,12 +169,8 @@ final class Kernel
     }
 
     /**
-     * Parse config
-     *
      * @param string $path
-     *
      * @return array
-     *
      * @throws BaseException
      */
     private static function parseConfig(string $name): array

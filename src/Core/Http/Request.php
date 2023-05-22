@@ -7,8 +7,6 @@ namespace App\Core\Http;
 use App\Exception\BaseException;
 
 /**
- * Request object
- *
  * @property-read array $query
  * @property-read array $request
  * @property-read array $env
@@ -40,8 +38,6 @@ final class Request
     ) {}
 
     /**
-     * Get request instance
-     *
      * @param array $query
      * @param array $request
      * @param array $server
@@ -66,12 +62,8 @@ final class Request
     }
 
     /**
-     * Getter
-     *
      * @param string $name
-     *
      * @return mixed
-     *
      * @throws BaseException
      */
     public function __get(string $name)

@@ -4,19 +4,13 @@ declare(strict_types=1);
 
 namespace App\Util;
 
-/**
- * Utils for arrays
- */
 final class ArrayUtils
 {
 
     /**
-     * Compare all items with specified
-     *
      * @param array $data
      * @param mixed $compareValue
      * @param bool $strict
-     *
      * @return bool
      */
     public static function every(array $data, mixed $compareValue = true, bool $strict = false): bool
@@ -43,61 +37,47 @@ final class ArrayUtils
     }
 
     /**
-     * Count all items in array
-     * = value not null - count all value in array
-     *
      * @param array $data
      * @param mixed $value
-     *
      * @return int
      */
     public static function count(array $data, mixed $value = null): int
     {
-        if ($value === null) {
-            return count($data);
+        if ($value !== null) {
+            $data = self::filter($data, static fn($item): bool => $item === $value);
         }
 
-        $filtered = array_filter($data, static fn($item): bool => $item === $value);
-
-        return count($filtered);
+        return count($data);
     }
 
     /**
-     * Get array values from enum values
-     *
-     * @param array $items
-     *
-     * @return array
-     */
-    public static function enumValues(array $items): array
-    {
-        return array_map(static fn($item) => $item->value, $items);
-    }
-
-    /**
-     * Fitler array
-     *
      * @param array $data
-     * @param callable $filter
-     *
+     * @param callable $callback
      * @return array
      */
-    public static function filter(array $data, callable $filter): array
+    public static function filter(array $data, callable $callback): array
     {
-        $filtered = array_filter($data, $filter);
+        $filtered = array_filter($data, $callback);
 
         return array_values($filtered);
     }
 
     /**
-     * Filter array not empty values
-     *
      * @param array $data
-     *
      * @return array
      */
     public static function filterNotEmptyValues(array $data): array
     {
         return self::filter($data, static fn($item) => !empty($item));
+    }
+
+    /**
+     * @param array $data
+     * @param callable $callback
+     * @return array
+     */
+    public static function map(array $data, callable $callback): array
+    {
+        return array_map($callback, $data);
     }
 }

@@ -6,9 +6,7 @@ namespace App\Core\Render;
 
 final class ViewParams
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private array $data;
 
     /**
@@ -32,10 +30,9 @@ final class ViewParams
 
     /**
      * @param string $name
-     *
-     * @return mixed|null
+     * @return mixed
      */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         return $this->data[$name] ?? null;
     }

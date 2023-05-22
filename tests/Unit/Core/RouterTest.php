@@ -16,9 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RouterTest extends TestCase
 {
-    /**
-     * @var Router
-     */
+    /** @var Router */
     private Router $router;
 
     protected function setUp(): void
@@ -180,8 +178,10 @@ class RouterTest extends TestCase
      */
     public function it_route_not_found_exception(string $uri, string $method): void
     {
-        $user = new class() {
-            public function delete(): bool {
+        $user = new class()
+        {
+            public function delete(): bool
+            {
                 return true;
             }
         };

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Core\Controller;
-use App\Exception\BaseException;
+use App\Attribute\Route;
+use App\Core\Controller\AbstractController;
 use App\Kernel;
 
-class ErrorController extends Controller
+class ErrorController extends AbstractController
 {
-    /**
-     * @return string
-     * @throws BaseException
-     */
+    #[Route(name: 'kernel.error', path: '/error')]
     public function indexAction(): string
     {
         $exception = Kernel::getException();
