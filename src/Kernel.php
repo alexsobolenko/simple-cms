@@ -6,18 +6,27 @@ namespace App;
 
 use App\Core\Connection\Database;
 use App\Core\Http\Request;
+use App\Core\Router\CommandLine;
 use App\Core\Router\Router;
 use App\Exception\BaseException;
 
 final class Kernel
 {
     public const VIEW_PATH = __DIR__ . '/View';
+    public const CONTEXT_WEB = '_context.web_';
+    public const CONTEXT_CLI = '_context.cli_';
 
     /** @var Router */
     private static Router $router;
 
+    /** @var CommandLine */
+    private static CommandLine $commandLine;
+
     /** @var Database */
     private static Database $database;
+
+    /** @var string */
+    private static string $context;
 
     /** @var array */
     private static array $get;
@@ -37,33 +46,53 @@ final class Kernel
     /** @var array */
     private static array $session;
 
+    /** @var array */
+    private static array $arguments;
+
+    /** @var array */
+    private static array $options;
+
     /**
+     * @param string $context
      * @param array $get
      * @param array $post
      * @param array $files
      * @param array $server
      * @param array $env
      * @param array $session
+     * @param array $arguments
+     * @param array $options
      * @throws BaseException
      */
     public function __construct(
-        array $get,
-        array $post,
-        array $files,
-        array $server,
-        array $env,
-        array $session
+        string $context = self::CONTEXT_WEB,
+        array $get = [],
+        array $post = [],
+        array $files = [],
+        array $server = [],
+        array $env = [],
+        array $session = [],
+        array $arguments = [],
+        array $options = []
     ) {
+        self::$context = $context;
         self::$get = $get;
         self::$post = $post;
         self::$files = $files;
         self::$server = $server;
         self::$env = $env;
         self::$session = $session;
+        self::$arguments = $arguments;
+        self::$options = $options;
 
         self::$router = new Router();
         self::$router->registerControllerRouteAttributes(
-            $this->getAllControllers(__DIR__ . '/Controller/')
+            $this->getAllClasses(__DIR__ . '/Controller/')
+        );
+
+        self::$commandLine = new CommandLine();
+        self::$commandLine->registerCommandAttributes(
+            $this->getAllClasses(__DIR__ . '/Command/')
         );
 
         $databaseConfig = self::parseConfig('database');
@@ -74,7 +103,7 @@ final class Kernel
      * @param string $path
      * @return array
      */
-    private function getAllControllers(string $path): array
+    private function getAllClasses(string $path): array
     {
         $result = [];
         foreach (scandir($path) as $item) {
@@ -83,7 +112,7 @@ final class Kernel
             }
 
             if (is_dir($path . $item)) {
-                $result = array_merge($result, $this->getAllControllers($path . $item . '/'));
+                $result = array_merge($result, $this->getAllClasses($path . $item . '/'));
             } elseif (is_file($path . $item)) {
                 $result[] = str_replace([__DIR__, '/', '.php'], ['\\App', '\\', ''], $path . $item);
             }
@@ -112,19 +141,32 @@ final class Kernel
     }
 
     /**
+     * @param string|null $name
      * @return string
      * @throws BaseException
      */
-    public function run(): string
+    public function run(?string $name = null): string
     {
-        try {
-            $result = self::$router->resolve(
-                self::$server['REQUEST_URI'],
-                self::$server['REQUEST_METHOD']
-            );
-        } catch (\Throwable $e) {
-            self::setException($e);
-            $result = self::$router->resolve('/error', 'GET');
+        if (self::$context === self::CONTEXT_CLI) {
+            try {
+                $result = self::$commandLine->resolve(
+                    $name,
+                    self::$arguments,
+                    self::$options
+                );
+            } catch (\Throwable $e) {
+                $result = $e->getMessage();
+            }
+        } else {
+            try {
+                $result = self::$router->resolve(
+                    self::$server['REQUEST_URI'],
+                    self::$server['REQUEST_METHOD']
+                );
+            } catch (\Throwable $e) {
+                self::setException($e);
+                $result = self::$router->resolve('/error', 'GET');
+            }
         }
 
         return $result;

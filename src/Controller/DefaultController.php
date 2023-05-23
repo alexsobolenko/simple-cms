@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Attribute\Route;
+use App\Attribute\Route\Route;
 use App\Core\Controller\AbstractController;
 use App\Kernel;
 use App\Model\User;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Router;
 
-use App\Attribute\Route;
+use App\Attribute\Route\Route;
 use App\Exception\BaseException;
 use App\Exception\RouteNotFoundException;
 use App\Util\ArrayUtils;

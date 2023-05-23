@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Kernel;
+use Dotenv\Dotenv;
+
+include __DIR__ . '/vendor/autoload.php';
+
+try {
+    $arguments = [];
+    $options = [];
+    if (is_array($argv)) {
+        foreach (array_slice($argv, 2) as $a) {
+            if (str_starts_with($a, '--')) {
+                [$key, $value] = explode('=', substr($a, 2));
+                if ($value === null) {
+                    $keyArr = explode('-', $key);
+                    if ($keyArr[0] === 'no') {
+                        $value = false;
+                        array_shift($keyArr);
+                    } else {
+                        $value = true;
+                    }
+                    $key = implode('-', $keyArr);
+                }
+                $options[$key] = $value;
+            } else {
+                $arguments[] = $a;
+            }
+        }
+    }
+
+    $dotenv = Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+    $kernel = new Kernel(
+        context: Kernel::CONTEXT_CLI,
+        env: $_ENV,
+        arguments: $arguments,
+        options: $options
+    );
+    $result = $kernel->run($argv[1] ?? null);
+} catch (\Throwable $e) {
+    $result = $e->getMessage();
+}
+
+echo PHP_EOL . $result . PHP_EOL;

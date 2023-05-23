@@ -80,4 +80,24 @@ final class ArrayUtils
     {
         return array_map($callback, $data);
     }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public static function printTable(array $data): string
+    {
+        $firstItem = array_shift($data);
+        $length = count($firstItem) - 1;
+        foreach ($firstItem as $item) {
+            $length += strlen($item);
+        }
+        $lines = [
+            implode('|', $firstItem),
+            str_pad('', $length, '-'),
+            ...self::map($data, static fn($item) => implode('|', $item)),
+        ];
+
+        return implode(PHP_EOL, $lines);
+    }
 }
